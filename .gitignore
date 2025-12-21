@@ -1,0 +1,16 @@
+# Python environment
+venv/
+__pycache__/
+*.pyc
+
+# Data (Top-tier firms don't upload raw data to Git)
+raw_data/
+*.csv
+*.pkl
+
+# IDE settings
+.vscode/
+.idea/
+
+# System files
+.DS_Store
