@@ -1,0 +1,32 @@
+name: Daily Book Update
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs at 00:00 every day (UTC)
+  workflow_dispatch: # Allows you to run it manually for testing
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install requests pandas
+
+      - name: Run updater
+        run: python updater.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name 'BookBot'
+          git config --global user.email 'bot@yourdomain.com'
+          git add raw_data/Audible_Catlog.csv
+          git commit -m "Automated Data Update" || exit 0
+          git push

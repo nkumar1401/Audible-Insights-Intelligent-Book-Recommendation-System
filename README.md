@@ -16,7 +16,9 @@ This application merges multiple Audible datasets to create a unified intelligen
 ## 📁 Project Structure
 ```text
 ├── raw_data/                 # Source CSV files (Git-ignored)
-├── myenv/                     # Virtual environment
+├── myenv/                    # Virtual environment
 ├── app.py                    # Main Streamlit application
 ├── .gitignore                # Version control exclusions
-└── README.md                 # Project documentation
+└── training                  # main script file
+|__ README.md                 # Project documentation
+
