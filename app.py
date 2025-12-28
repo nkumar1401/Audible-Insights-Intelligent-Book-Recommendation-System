@@ -20,22 +20,30 @@ st.set_page_config(page_title="Audible Insights", layout="wide", page_icon="🎧
 
 @st.cache_data
 def get_processed_data():
+    # Use join for cross-platform compatibility
     file_path = os.path.join("raw_data", "Audible_Catlog_Advanced_Features.csv")
     if not os.path.exists(file_path):
         st.error(f"File not found: {file_path}")
         return pd.DataFrame()
         
     df = pd.read_csv(file_path)
+    
+    # Cleaning [cite: 18, 19, 21]
     df['Rating'] = pd.to_numeric(df['Rating'], errors='coerce').replace(-1, np.nan).fillna(df['Rating'].median())
     df['Number of Reviews'] = pd.to_numeric(df['Number of Reviews'], errors='coerce').fillna(0)
     df['Description'] = df['Description'].fillna("No description available")
     df['Ranks and Genre'] = df['Ranks and Genre'].fillna("General")
+    
+    # Metadata creation for NLP [cite: 26]
     df['metadata'] = df['Book Name'] + " " + df['Author'] + " " + df['Description'] + " " + df['Ranks and Genre']
     return df
 
 def build_ml_assets(df):
+    # NLP and Feature Engineering [cite: 26, 47]
     tfidf = TfidfVectorizer(stop_words='english', max_features=2500)
     tfidf_matrix = tfidf.fit_transform(df['metadata'])
+    
+    # KMeans Clustering - creating 10 knowledge neighborhoods [cite: 27, 31]
     kmeans = KMeans(n_clusters=10, random_state=42, n_init='auto')
     df['Cluster'] = kmeans.fit_predict(tfidf_matrix)
     return df, tfidf_matrix
@@ -99,22 +107,35 @@ def main():
                     st.success(f"Heard: '{voice_query}'")
             except: st.warning("Audio not recognized.")
 
-        user_input = st.text_input("Title or Mood:", value=voice_query)
+        # Updated Search Bar with List Support
+        # We use a selectbox combined with a text input to dignify both specific and broad searches
+        search_type = st.radio("Search Method:", ["Select from Library", "Describe your Mood/Need"], horizontal=True)
+        
+        if search_type == "Select from Library":
+            user_input = st.selectbox("Pick a book to find similar titles:", [""] + list(df['Book Name'].unique()))
+        else:
+            user_input = st.text_input("Enter a mood or topic (e.g., 'feeling stressed'):", value=voice_query)
+            
         num_recs = st.slider("Suggestions:", 3, 10, 5)
 
         if st.button("Generate My Reading Journey"):
-            # Recommendation Logic
+            if not user_input:
+                st.warning("Please enter a book name or a mood to proceed.")
+                return
+
+            # Recommendation Logic [cite: 30, 31]
             if user_input in df['Book Name'].values:
                 idx = df[df['Book Name'] == user_input].index[0]
                 current_cluster = df.iloc[idx]['Cluster']
                 sim_scores = cosine_similarity(tfidf_matrix[idx], tfidf_matrix).flatten()
                 related_indices = sim_scores.argsort()[-(num_recs+1):-1][::-1].tolist()
             else:
+                # Content-based mood search [cite: 30]
                 recs = df[df['metadata'].str.contains(user_input, case=False, na=False)].head(num_recs)
                 related_indices = recs.index.tolist()
                 current_cluster = -1
 
-            # Wildcard logic
+            # Wildcard logic for Anti-Filter Bubble
             if len(related_indices) >= 2:
                 other_clusters = df[df['Cluster'] != current_cluster]
                 if not other_clusters.empty:
@@ -127,12 +148,11 @@ def main():
             for i, (idx, row) in enumerate(results.iterrows()):
                 is_wildcard = (i == len(results) - 1)
                 
-                # FIXED: Only ONE expander per book
                 with st.expander(f"{'🌟 WILDCARD: ' if is_wildcard else ''}{row['Book Name']}"):
                     if is_wildcard:
                         st.info("✨ **Anti-Filter Bubble:** Picking a new genre to expand your horizons.")
                     
-                    # Call LLM Reasoning
+                    # Call LLM Reasoning for Personalized Insight
                     with st.spinner("AI Agent Reasoning..."):
                         reason = get_ai_reasoning(user_input, row['Book Name'], row['Description'])
                         st.markdown(f"**🧠 AI Insight:** *{reason}*")
@@ -140,13 +160,20 @@ def main():
                     st.write(f"**Author:** {row['Author']} | **Rating:** ⭐ {row['Rating']}")
                     st.write(f"**Description:** {row['Description'][:300]}...")
                     
-                    # Affiliate Links
+                    # Store & Affiliate Links
                     q = row['Book Name'].replace(" ", "+")
                     st.markdown(f"[🛒 Amazon.in](https://www.amazon.in/s?k={q}) | [🎧 Audible.in](https://www.audible.in/search?keywords={q})")
 
     elif app_mode == "Data Visualization & EDA":
         st.title("📊 Global Library Analytics")
-        st.bar_chart(df['Rating'].value_counts())
+        # Visualization of key insights [cite: 24, 73]
+        col1, col2 = st.columns(2)
+        with col1:
+            st.subheader("Distribution of Ratings")
+            st.bar_chart(df['Rating'].value_counts())
+        with col2:
+            st.subheader("Most Common Authors")
+            st.bar_chart(df['Author'].value_counts().head(10))
 
 if __name__ == "__main__":
     main()
