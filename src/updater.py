@@ -52,6 +52,9 @@ def update_diverse_books():
         new_df.to_csv(FILE_PATH, index=False)
     
     print(f"Update Complete. Added {len(all_new_data)} diverse titles.")
+    # Verification Logic
+    final_df = pd.read_csv(FILE_PATH)
+    print(f"Update Verified: Dataset now contains {len(final_df)} total records.")
 
 if __name__ == "__main__":
     update_diverse_books()
