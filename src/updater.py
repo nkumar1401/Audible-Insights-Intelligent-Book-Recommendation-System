@@ -8,7 +8,13 @@ def update_diverse_books():
     CATEGORIES = ["technology", "spirituality", "fiction", "business", "history", "biography"]
     REQUIRED_COLUMNS = ['Book Name', 'Author', 'Rating', 'Number of Reviews', 'Price', 'Description', 'Ranks and Genre']
     FILE_PATH = "raw_data/Audible_Catlog_Advanced_Features.csv"
+    # ... (Keep your CATEGORIES and REQUIRED_COLUMNS as they are)
+    FILE_PATH = "raw_data/Audible_Catlog_Advanced_Features.csv"
     
+    # NEW: Create the raw_data directory if it doesn't exist
+    if not os.path.exists("raw_data"):
+        print("Creating 'raw_data' directory...")
+        os.makedirs("raw_data")
     all_new_data = []
 
     for category in CATEGORIES:
