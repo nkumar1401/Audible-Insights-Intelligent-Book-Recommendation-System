@@ -27,6 +27,6 @@ jobs:
         run: |
           git config --global user.name 'BookBot'
           git config --global user.email 'bot@yourdomain.com'
-          git add raw_data/*.csv
+          git add -f raw_data/*.csv
           git commit -m "Automated Data Update: Managed by AI Engine" || exit 0
           git push
