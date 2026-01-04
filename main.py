@@ -12,35 +12,140 @@ from src.ai_agent import get_ai_reasoning
 from src.utils import get_book_cover  # Ensure this exists in src/utils.py
 
 # --- LUXURY CONFIG ---
-st.set_page_config(page_title="Audible Insights | Elite Discovery", layout="wide", page_icon="🎧")
 
 FILE1 = os.path.join("raw_data", "Audible_Catlog.csv")
 FILE2 = os.path.join("raw_data", "Audible_Catlog_Advanced_Features.csv")
 
-# Custom CSS
+# --- PREMIUM WINTER-THEMED CSS WITH ANIMATION ---
 st.markdown("""
     <style>
-    .stApp { background-color: #0e1117; color: #e0e0e0; }
-    .book-container {
-        background-color: #1c2128;
-        padding: 30px;
-        border-radius: 15px;
-        border: 1px solid #30363d;
-        margin-bottom: 25px;
+    /* 1. Global Background & Snow Animation */
+    .stApp {
+        background: radial-gradient(circle at top, #1a1c2c 0%, #0d0e14 100%) !important;
+        color: #f0f2f6 !important;
+        font-family: 'Georgia', serif;
     }
-    .serendipity-tag { color: #ffd700; font-weight: bold; font-size: 0.8rem; }
+
+    /* Falling Snow Effect */
+    .stApp::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: radial-gradient(circle, #ffffff 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: snow 10s linear infinite;
+        opacity: 0.1;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    @keyframes snow {
+        0% { background-position: 0 0; }
+        100% { background-position: 500px 1000px; }
+    }
+
+    /* 2. Glassmorphism Book Container */
+    .book-container {
+        background: rgba(255, 255, 255, 0.05) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px);
+        padding: 40px;
+        border-radius: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+        margin-bottom: 40px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        z-index: 1;
+    }
+
+    .book-container:hover {
+        transform: translateY(-10px) scale(1.01);
+        border: 1px solid rgba(212, 175, 55, 0.5); /* Nordic Gold Glow */
+        background: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    /* 3. Luxury Typography */
+    h1, h2, h3 {
+        color: #ffffff !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        font-weight: 700;
+    }
+
+    /* 4. Nordic Gold Serendipity Tag */
+    .serendipity-tag {
+        color: #d4af37 !important;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 800;
+        font-size: 0.7rem;
+        background: rgba(212, 175, 55, 0.15);
+        padding: 6px 15px;
+        border-radius: 50px;
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    /* 5. Premium CTA - Amazon Button */
     .amazon-link {
-        background-color: #232f3e;
-        color: #ff9900 !important;
-        padding: 8px 15px;
-        border-radius: 5px;
-        text-decoration: none;
-        font-weight: bold;
+        background: linear-gradient(135deg, #d4af37 0%, #aa8919 100%) !important;
+        color: #000000 !important;
+        padding: 14px 30px;
+        border-radius: 12px;
+        text-decoration: none !important;
+        font-weight: 800;
+        display: inline-block;
+        box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+
+    .amazon-link:hover {
+        box-shadow: 0 15px 30px rgba(212, 175, 55, 0.4);
+        transform: translateY(-2px);
     }
     </style>
     """, unsafe_allow_html=True)
 
 def main():
+# --- PRE-INITIALIZE THEME ENGINE (DO NOT MOVE) ---
+    st.markdown("""
+    <style>
+    /* 1. FORCE THEME ON ALL LAYERS */
+    .stApp, .main, .block-container {
+        background: radial-gradient(circle at top, #1a1c2c 0%, #0d0e14 100%) !important;
+    }
+
+    /* 2. THE WINTER SNOW OVERLAY (Improved) */
+    [data-testid="stAppViewContainer"]::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: 
+            radial-gradient(circle, #ffffff 1px, transparent 1px),
+            radial-gradient(circle, #ffffff 1.5px, transparent 1px);
+        background-size: 50px 50px, 100px 100px;
+        animation: snow 15s linear infinite;
+        opacity: 0.2;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    @keyframes snow {
+        0% { background-position: 0 0, 0 0; }
+        100% { background-position: 500px 1000px, 400px 400px; }
+    }
+
+    /* 3. ENSURE SIDEBAR MATCHES THE WINTER VIBE */
+    [data-testid="stSidebar"] {
+        background-color: #1a1c2c !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     st.title("🏛️ Audible Insights: The Intelligent Discovery Suite")
     st.markdown("---")
 

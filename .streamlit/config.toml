@@ -1,0 +1,7 @@
+# .streamlit/config.toml
+[theme]
+primaryColor = "#38bdf8"          # Neon Frost Cyan (The 'Pop' color)
+backgroundColor = "#0f172a"       # Deep Indigo Midnight (Rich, not flat black)
+secondaryBackgroundColor = "#1e293b" # Frosted Slate (For sidebars/cards)
+textColor = "#f8fafc"             # Ghost White
+font = "serif"
