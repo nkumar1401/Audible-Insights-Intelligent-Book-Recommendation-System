@@ -48,17 +48,26 @@ def update_diverse_books():
     # Remove duplicates before appending
     new_df.drop_duplicates(subset=['Book Name', 'Author'], inplace=True)
 
-    # 3. Save to CSV
+# 3. Smart Save Logic (Replaces Append Mode)
     if os.path.exists(FILE_PATH):
-        # We append without the header so your main CSV stays clean
-        new_df.to_csv(FILE_PATH, mode='a', header=False, index=False)
+        try:
+            # Load existing data with error handling for Git markers
+            existing_df = pd.read_csv(FILE_PATH, on_bad_lines='skip')
+            
+            # Combine old and new
+            combined_df = pd.concat([existing_df, new_df], ignore_index=True)
+            
+            # Founder's Rule: Always drop duplicates to keep data elite
+            combined_df.drop_duplicates(subset=['Book Name', 'Author'], keep='last', inplace=True)
+            
+            # Save the clean, unified version
+            combined_df.to_csv(FILE_PATH, index=False)
+            print(f"Smart Merge Complete. Total unique records: {len(combined_df)}")
+        except Exception as e:
+            print(f"Merge failed, saving new data only. Error: {e}")
+            new_df.to_csv(FILE_PATH, index=False)
     else:
         new_df.to_csv(FILE_PATH, index=False)
-    
-    print(f"Update Complete. Added {len(all_new_data)} diverse titles.")
-    # Verification Logic
-    final_df = pd.read_csv(FILE_PATH)
-    print(f"Update Verified: Dataset now contains {len(final_df)} total records.")
 
 if __name__ == "__main__":
     update_diverse_books()
